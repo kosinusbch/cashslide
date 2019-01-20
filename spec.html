@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Spec sheet</title>
+    </head>
+    <body>
+        <h2>Cashslide - Protocol Spec</h2>
+        <p>A on-chain encrypted messaging application</p>
+        <p>[timestamp] is used to let users who were not in the chat at the time of the transaction being sent out so that messages do not appear out of order. If the timestamp does not correspond with the block it was confirmed included in, it will be hidden from new users.</p>
+        <br/>
+        <p><b>1-on-1 Private Chats (0x00-0x0F)</b></p>
+        <p>0x01 - Send/Accept friend request (share pubkeys) - [preifx] [0x01]</p>
+        <p>0x04 - Encrypted Private Message - [preifx] [0x04] [timestamp] [message]</p>
+        <p><b>Public Group Chats (0x10-0x1F)</b></p>
+        <p>0x10 - Set Plaintext Group Title - [prefix] [0x10] [title]</p>
+        <p>0x11 - Add Moderator - [prefix] [0x12] [address]</p>
+        <p>0x12 - Restrict User Posting - [prefix] [0x13] [address]</p>
+        <p>0x13 - Unrestrict User Posting - [prefix] [0x14] [address]</p>
+        <p>0x14 - Plaintext Group Message - [preifx] [0x15] [timestamp] [message]</p>
+        <p><b>Tier 1 Private Group Chats (0x20-0x2F)</b></p>
+        <p>0x20 - Set Encrypted Group Title - [prefix] [0x10] [title]</p>
+        <p>0x21 - Add Moderator - [prefix] [0x12] [address]</p>
+        <p>0x22 - Restrict User Posting - [prefix] [0x13] [address]</p>
+        <p>0x23 - Unrestrict User Posting - [prefix] [0x14] [address]</p>
+        <p>0x24 - Encrypted Group Message - [preifx] [0x15] [timestamp] [message]</p>
+        <p><b>Tier 2 Private Group Chats  (0x30-0x3F)</b></p>
+        <p>Coming soon: Better privacy, single static shared secret, all actions encrypted</p>
+        <p><b>Tier 3 Private Group Chats (no prefix)</b></p>
+        <p>Coming soon: Zero-knowledge communication, new memberships requires complete group restructure, voting for new members, constantly changing secret</p>
+    </body>
+</html>
