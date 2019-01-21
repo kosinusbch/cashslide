@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="wallet/dist/blockparty-wallet.css">
+        <style>
+        #blockparty-wallet {
+            position:absolute;
+            bottom:0px;
+            right:100px;
+            width:25rem;
+        }
+        </style>
+    </head>
+    <body>
+		<form>
+        <input type="text" id="addr" placeholder="enter friends bitcoin address" value="qzyy39eppf60npckfnwjww77f2r2zyn8lu9a02z0hy">
+		<br>
+		<input type="radio" name="enc-type" id="enc-type" value="00" selected>unencrypted<br>
+		<input type="radio" name="enc-type" id="enc-type" value="01">AES-GCM<br>
+		<br>
+		<textarea id="msg" placeholder="enter message here"></textarea>
+		<br>
+        <button type="button" id="send-msg-btn">send message</button>
+		</form>
+
+
+        <script type="text/template" id="message-template">
+            <li class="action-message">
+                <div class="collapsible-header valign-wrapper">
+                    <a class="btn-floating action-icon green"><i class="material-icons">speaker_notes</i></a>
+                    <span class="action-type">{{type}}</span>
+                    <span class="action-amount">{{amnt}} BCH</span>
+                    <span class="action-date right">{{date}}</span>
+                </div>
+                <div class="collapsible-body action-collapse">
+                    <span class="txid"><a href="{{txid_href}}" class="truncate" target="_blank">{{txid}}</a></span>
+                </div>
+            </li>
+        </script>
+
+
+        <script src="wallet/dist/blockparty-wallet.js"></script>
+        <script>
+			const protocol_prefix = 'BMSG';
+			const reply_sats = 1000;
+
+            blockparty.registered_actions_parsers = [];
+
+            const get_public_key = (addr) => {
+				if (addr.startsWith('bitcoincash:')) {
+					addr = addr.split('bitcoincash:');
+				}
+
+				return new Promise((resolve, reject) => {
+					blockparty.query_bitdb({
+						"v": 3,
+						"q": {
+							"find": {"in.e.a": addr},
+							"limit": 10
+						}
+					}, (data) => {
+						console.log(data);
+
+						for (const tx of data.u) {
+							try {
+								for (const i of tx.in) {	
+									if (i.e.a == addr) {
+										return resolve(blockparty.bch.PublicKey(i.h1));
+									}
+								}
+							} catch (e) {
+								continue;
+							}
+						}
+
+						for (const tx of data.c) {
+							try {
+								for (const i of tx.in) {	
+									if (i.e.a == addr) {
+										return resolve(blockparty.bch.PublicKey(i.h1));
+									}
+								}
+							} catch (e) {
+								continue;
+							}
+						}
+
+						reject(new Error('pubkey not found'));
+					})
+				});
+			}
+
+			const find_all_messages = () => {
+				return new Promise((resolve, reject) => {
+					blockparty.query_bitdb({
+						"v": 3,
+						"q": {
+							"find": {
+								"out.e.a": blockparty.get_address_suffix(),
+								"in.e.h1": protocol_prefix
+							},
+							"limit": 10
+						}
+					}, (data) => {
+						console.log(data);
+						// todo
+						// blah blah blah
+						// resolve(messages);
+					});
+				});
+			}
+
+			const find_shared_secret = () => {
+				// todo
+				// https://stackoverflow.com/a/48459821
+
+				return window.crypto.subtle.importKey(
+					'raw',
+					blockparty.get_private_key().toBuffer(),
+					{ name: 'ECDH', namedCurve: 'P-256' },
+					true,
+					[]
+				);
+			};
+						
+
+
+            // blockparty.after('login', get_messages); // load all messages here
+            blockparty.init();
+
+            document.getElementById('send-msg-btn').addEventListener('click', async () => {
+				const addr = document.getElementById('addr').value;
+				const timestamp_hex = (+(new Date)).toString(16);
+				const encryption_type = document.getElementById('enc-type').value;
+				// const recv_pubkey = await get_public_key(addr);
+
+				let message = document.getElementById('msg').value;
+				switch (encryption_type) {
+					case '00': // unencrypted
+						break;
+					case '01': // AES-GCM
+						break;
+					default:
+						console.error('unimplemented encryption type');
+						return;
+				}
+
+				const op_return_data = [
+                    {'type': 'str', 'v': protocol_prefix},
+                    {'type': 'hex', 'v': encryption_type},
+                    // {'type': 'hex', 'v': recv_pubkey.toString()},
+                    {'type': 'hex', 'v': timestamp_hex},
+                    {'type': 'str', 'v': message},
+                ];
+				console.log(op_return_data);
+
+                let tx = new blockparty.bch.Transaction();
+                tx.from(blockparty.get_utxos());
+				tx.to(blockparty.bch.Address.fromString(addr), reply_sats);
+                tx = blockparty.add_op_return_data(tx, op_return_data);
+                tx.feePerKb(blockparty.fee_per_kb);
+                tx.change(blockparty.get_address());
+                tx = blockparty.clean_tx_dust(tx);
+                tx = tx.sign(blockparty.get_private_key());
+
+				console.log(tx);
+
+				/*
+                blockparty.broadcast_tx(tx, () => {
+                    setTimeout(() => {
+                        blockparty.update_balance(blockparty.update_balance_html);
+                        blockparty.update_utxos();
+                        blockparty.update_actions();
+                    }, 2000);
+                }, false);
+				*/
+            });
+        </script>
+    </body>
+ </html>
