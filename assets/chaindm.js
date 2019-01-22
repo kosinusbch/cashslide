@@ -296,14 +296,10 @@ function e(html){
 
 function shitty_parse_messages(result)
 {
-    //^[a-zA-Z0-9/_.:]*$
-    //var match_http = /(\b(https?|):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-    //var result=result.replace(match_http, "<a target='_blank' href='$1'>$1</a>");
-    //var match_www =/(^|[^\/])(www\.[\S]+(\b|$))/gim;
-    //var result=result.replace(match_www, '$1<a target="_blank" href="http://$2">$2</a>');
-
-    //var match_img = /(.*?)(https?:\/\/.*\.(?:png|jpg|gif))(.*?)</i; //insecure as fuck, but will add proxy in the future
-    //var result=result.replace(match_img, '$1$2$3 <br/><img style="max-width: 100%;max-height: 400px;border-radius: 5px;" src="$2"><');
+    var bold = /\*\*(\S(.*?\S)?)\*\*/gm;
+    var result = result.replace(bold, '<strong>$1</strong>');
+    var italic = /\*(\S(.*?\S)?)\*/gm;
+    var result = result.replace(italic, '<i>$1</i>');
 
     return result;
 }
