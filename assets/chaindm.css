@@ -239,6 +239,21 @@ tbody td {
     font-weight:bold;
 }
 
+code {
+    background:#1f1f1f;
+    padding: 2px 4px 2px 4px;
+    border-radius: 2px;
+    color: #e061cf;
+}
+
+strong {
+    font-weight: bold;
+}
+
+i {
+    font-style: italic;
+}
+
 .chatwindow ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

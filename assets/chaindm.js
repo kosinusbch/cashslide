@@ -300,6 +300,8 @@ function shitty_parse_messages(result)
     var result = result.replace(bold, '<strong>$1</strong>');
     var italic = /\*(\S(.*?\S)?)\*/gm;
     var result = result.replace(italic, '<i>$1</i>');
+    var italic = /\`(\S(.*?\S)?)\`/gm;
+    var result = result.replace(italic, '<code>$1</code>');
 
     return result;
 }
