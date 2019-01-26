@@ -222,6 +222,8 @@ function asyncFunction (output, cb, address) {
 function initializeGropeCat(address, password = null) {
     var address = address;
 
+    sessionStorage.setItem('CS_CONNECTED_SERVER', address);
+
     var restore = JSON.parse(localStorage.getItem('MY_CIRCLE'));
 
     let requests = restore.reduce((promiseChain, item) => {
@@ -259,6 +261,8 @@ function initializeGropeCat(address, password = null) {
 
 function initializeGroupChat(address, password = null) {
     
+    sessionStorage.setItem('CS_CONNECTED_SERVER', address);
+
     if(password == null || password == undefined) {
         isEncrypted = false;
     } else {
