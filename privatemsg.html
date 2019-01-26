@@ -16,7 +16,7 @@
         <input type="text" id="addr" placeholder="enter friends bitcoin address" value="qzyy39eppf60npckfnwjww77f2r2zyn8lu9a02z0hy">
 		<br>
 		<input type="radio" name="enc-type" id="enc-type" value="00" selected>unencrypted<br>
-		<input type="radio" name="enc-type" id="enc-type" value="01">AES-GCM<br>
+		<input type="radio" name="enc-type" id="enc-type" value="01" checked>AES-GCM<br>
 		<br>
 		<textarea id="msg" placeholder="enter message here"></textarea>
 		<br>
@@ -40,7 +40,10 @@
 
 
         <script src="wallet/dist/blockparty-wallet.js"></script>
+        <script src="assets/dependencies/elliptic.js"></script>
         <script>
+			const ec  = new window.elliptic.ec('secp256k1');
+
 			const protocol_prefix = 'BMSG';
 			const reply_sats = 1000;
 
@@ -110,19 +113,18 @@
 				});
 			}
 
-			const find_shared_secret = () => {
-				// todo
-				// https://stackoverflow.com/a/48459821
+			const find_shared_secret = (addr) => {
+				if (typeof addr !== 'string') {
+					throw new Error('addr must be hexstring');
+				}
 
-				return window.crypto.subtle.importKey(
-					'raw',
-					blockparty.get_private_key().toBuffer(),
-					{ name: 'ECDH', namedCurve: 'P-256' },
-					true,
-					[]
-				);
+				return new Promise(async (resolve, reject) => {
+					const a = ec.keyFromPrivate(blockparty.get_private_key().toString(), 'hex');
+                    const pubkey = await get_public_key(addr);
+					const b = ec.keyFromPublic(pubkey.toString(), 'hex');
+					resolve(a.derive(b.getPublic()));
+				});
 			};
-						
 
 
             // blockparty.after('login', get_messages); // load all messages here
@@ -131,14 +133,15 @@
             document.getElementById('send-msg-btn').addEventListener('click', async () => {
 				const addr = document.getElementById('addr').value;
 				const timestamp_hex = (+(new Date)).toString(16);
-				const encryption_type = document.getElementById('enc-type').value;
-				// const recv_pubkey = await get_public_key(addr);
+				const encryption_type = document.querySelector('input[name="enc-type"]:checked').value;
 
 				let message = document.getElementById('msg').value;
 				switch (encryption_type) {
 					case '00': // unencrypted
 						break;
 					case '01': // AES-GCM
+                        const ssecret = await find_shared_secret(addr);
+                        console.log('shared secret', ssecret.toString());
 						break;
 					default:
 						console.error('unimplemented encryption type');
