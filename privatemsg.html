@@ -41,6 +41,7 @@
 
         <script src="wallet/dist/blockparty-wallet.js"></script>
         <script src="assets/dependencies/elliptic.js"></script>
+        <script src="assets/dependencies/AES-GCM.js"></script>
         <script>
 			const ec  = new window.elliptic.ec('secp256k1');
 
@@ -125,6 +126,9 @@
 					resolve(a.derive(b.getPublic()));
 				});
 			};
+
+            const encrypt_message = (msg, shared_secret) => aesGcmEncrypt(msg, shared_secret);
+            const decrypt_message = (msg, shared_secret) => aesGcmDecrypt(msg, shared_secret);
 
 
             // blockparty.after('login', get_messages); // load all messages here
