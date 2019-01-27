@@ -21,28 +21,26 @@ function createWallet() {
     console.log(simpleWallet.legacyAddress);
     localStorage.setItem("CS_BCH_PRIVATE_KEY", simpleWallet.privateKey);
     console.log(simpleWallet.privateKey);
+    
+    $("#account_memes_4_lyfe").replaceWith('<div style="text-align:center;overflow-wrap: break-word;"><img src="https://chart.googleapis.com/chart?cht=qr&chl=' + simpleWallet.cashAddress + '&chs=210x210&chld=L|0"><br/><br/>' + simpleWallet.cashAddress + '<br/><br/><b>Save your privatekey now!</b><br/><span style="color: #ff1414;">' + simpleWallet.privateKey + '<br/>' + simpleWallet.mnemonic + '</span></div>');
 
-    const keys = ecdsa.keyFromPrivate(privateKey);  
-    const publicKey = keys.getPublic('hex');  
-    localStorage.setItem("CS_BCH_PUBLIC_KEY", publicKey);
 }
 
 function createWalletFromMnemonic(mnemonic) {
     simpleWallet = new SimpleWallet(mnemonic);
-
-    localStorage.setItem("CS_BCH_MNEMONIC", mnemonic);
+    localStorage.setItem("CS_BCH_MNEMONIC", simpleWallet.mnemonic);
     console.log(simpleWallet.mnemonic);
-    console.log(mnemonic);
     localStorage.setItem("CS_BCH_CASH_ADDRESS", simpleWallet.cashAddress);
     console.log(simpleWallet.cashAddress);
     localStorage.setItem("CS_BCH_LEGACY_ADDRESS", simpleWallet.legacyAddress);
     console.log(simpleWallet.legacyAddress);
     localStorage.setItem("CS_BCH_PRIVATE_KEY", simpleWallet.privateKey);
     console.log(simpleWallet.privateKey);
+    $("#account_memes_4_lyfe").replaceWith('<div style="text-align:center;overflow-wrap: break-word;"><img src="https://chart.googleapis.com/chart?cht=qr&chl=' + simpleWallet.cashAddress + '&chs=210x210&chld=L|0"><br/><br/>' + simpleWallet.cashAddress + '<br/><br/><b>Save your privatekey now!</b><br/><span style="color: #ff1414;">' + simpleWallet.privateKey + '<br/>' + simpleWallet.mnemonic + '</span></div>');
+}
 
-    const keys = ecdsa.keyFromPrivate(privateKey);
-    const publicKey = keys.getPublic('hex');
-    localStorage.setItem("CS_BCH_PUBLIC_KEY", publicKey);
+function deleteWallet() {
+
 }
 
 function send(message, addy, isEncrypted, isGroupChat) {
@@ -72,9 +70,46 @@ function send(message, addy, isEncrypted, isGroupChat) {
     }
 
     datacash.send(config, function(err, res) {
-        console.log(res);
-        return res;
+        if(err == null || err == undefined) {
+            console.log(res);
+            return res;
+        } else {
+            console.log('Error sending tx ' + err);
+            alert('Error sending tx, make sure you have a balance or wait 10 minutes for a block confirmation');
+            return err;
+        }
     })
+}
+
+function send_simplewallet(message, addy, isEncrypted, isGroupChat) {
+
+    if(isEncrypted && isGroupChat) {
+        msgPrefix = '0x15';
+    } else if (isGroupChat) {
+        msgPrefix = '0x14';
+    } else if (isEncrypted) {
+        msgPrefix = '0x05';
+    } else {
+        msgPrefix = '0x04';
+    }
+
+    unixtime = Math.round(new Date().getTime()/1000);
+
+    const simpleWallet = new SimpleWallet(localStorage.getItem("CS_BCH_MNEMONIC"));
+
+    try {
+        tx = simpleWallet.send([
+            { opReturn: [""+prefix+"", ""+msgPrefix+"", ""+unixtime+"", ""+message+""] },{ address: addy, amountSat: 550 }
+        ]);
+    } catch (err) {
+        console.error(err);
+    
+        if (err.message && err.message.indexOf("Insufficient") > -1) {
+            alert("Insufficient balance.");
+        }
+    
+        alert("oopsie doopsie");
+    }
 }
 
 function convertFromHex(hex) {
@@ -296,20 +331,34 @@ function e(html){
 
 function shitty_parse_messages(result)
 {
+//    var newline = /(?:\r\n|\r|\n)/g;
+//    var result = result.replace(newline, '<br/>')
     var bold = /\*\*(\S(.*?\S)?)\*\*/gm;
     var result = result.replace(bold, '<strong>$1</strong>');
     var italic = /\*(\S(.*?\S)?)\*/gm;
     var result = result.replace(italic, '<i>$1</i>');
-    var italic = /\`(\S(.*?\S)?)\`/gm;
-    var result = result.replace(italic, '<code>$1</code>');
+    var code = /\`(\S(.*?\S)?)\`/gm;
+    var result = result.replace(code, '<code>$1</code>');
+    var strike = /\~\~(\S(.*?\S)?)\~\~/gm;
+    var result = result.replace(strike, '<del>$1</del>');
+    var uline = /\_\_(\S(.*?\S)?)\_\_/gm;
+    var result = result.replace(uline, '<u>$1</u>');
+    var italic2 = /\_(\S(.*?\S)?)\_/gm;
+    var result = result.replace(italic2, '<i>$1</i>');
 
     return result;
 }
 
 function getUsernameColor(color) {
-    username_color = ['#469990','#8a8aff','#e6194B','#bfef45','#dc5454','#1bb1e0','#9A6324','#aaffc3','#3abc9b'];
+    username_color = ['#469990','#8a8aff','#ce2c54','#dcad54','#dc5454','#1bb1e0','#b9711e','#6fa9dc','#3abc9b'];
     myaddy = localStorage.getItem("CS_BCH_CASH_ADDRESS");
-    partial_priv = localStorage.getItem("CS_BCH_PRIVATE_KEY").substring(1, 10);
+
+    if(hasAccount() == true) {
+        partial_priv = localStorage.getItem("CS_BCH_PRIVATE_KEY").substring(1, 10);
+    } else if(hasAccount() == false) {
+        partial_priv = '123456789';
+    }
+    
     color = sha256(color + partial_priv + myaddy);
     color = color.replace(/\D/g,'');
     color = color.substring(0, 1);

@@ -13,8 +13,10 @@
         <script src="assets/dependencies/bchaddrjs-0.3.0.min.js"></script>
         <script src="assets/dependencies/simple-bitcoin-wallet.min.js"></script>
         <script src="assets/dependencies/tingle.js"></script>
-        <script src="assets/jquery.min.js"></script>
+        <script src="assets/dependencies/jquery.min.js"></script>
         <script src="assets/chaindm.js"></script>
+        <script src="/index.js"></script>
+        <script src="/assets/loadChat.js"></script>
         <script src="assets/myinfo.js"></script>
         <link rel="stylesheet" type="text/css" href="assets/chaindm.css" media="all">
         <link rel="stylesheet" type="text/css" href="assets/dependencies/tingle.css" media="all">
@@ -40,6 +42,7 @@
 
                         <div style="text-align:left;color:#fff;margin-top:3vh;">
                             <a href="" style="background: #1b6ec5;width: 100%;display: block;padding: 8px 10px 8px 10px;border-radius: 3px;box-sizing: border-box;text-align: center;margin-bottom: 10px;cursor: pointer;">Create a Server</a>
+                            <a onclick="manageAccountModal()" style="background: #1b6ec5;width: 100%;display: block;padding: 8px 10px 8px 10px;border-radius: 3px;box-sizing: border-box;text-align: center;margin-bottom: 10px;cursor: pointer;">My Account</a>
                             <a onclick="inviteModal()" style="background: #1b6ec5;width: 100%;display: block;padding: 8px 10px 8px 10px;border-radius: 3px;box-sizing: border-box;text-align: center;margin-bottom: 10px;cursor: pointer;">Redeem Invite Code</a>
                             <a onclick="meme_clap_connect('qz504rd58pvpvnk3ktnl946l6xa2adgwns78mzfnam')" style="background: #1b6ec5;width: 100%;display: block;padding: 8px 10px 8px 10px;border-radius: 3px;box-sizing: border-box;text-align: center;margin-bottom: 10px;cursor: pointer;">Join our Public Test Server</a>
                         </div>
@@ -48,39 +51,35 @@
             </div>
             <div class="message_wrapper" id="addmessageforms"></div>
         </div>
-        <script src="/index.js"></script>
-        <script src="/assets/loadChat.js"></script>
         <script>
-        function meme_clap_connect(address = null, password = null) {
-            
-            var isCashAddress = bchaddr.isCashAddress;
+            function meme_clap_connect(address = null, password = null) {
 
-            if(address == null) {
-                var address = $('#connect_address').val();
-                myCircle(address);
-            } else {
-                myCircle(address);
+                var isCashAddress = bchaddr.isCashAddress;
+
+                if(address == null) {
+                    var address = $('#connect_address').val();
+                    myCircle(address);
+                } else {
+                    myCircle(address);
+                }
+
+                var password = $('#connect_password').val();
+                var addresslenght = address.toString().length;
+                var passwordlenght = password.toString().length;
+
+                if (passwordlenght >= 1 && isCashAddress(address)) {
+                    initializeGroupChat(address, password);
+                    console.log('logging in with password and address');
+                } else if(isCashAddress(address)) {
+                    initializeGroupChat(address);
+                    console.log('logging in with address');
+                } else {
+                    alert('Make sure you entered a valid address');
+                }
             }
-            var password = $('#connect_password').val();
 
-            var addresslenght = address.toString().length;
-            var passwordlenght = password.toString().length;
-
-            console.log(passwordlenght);
-
-            if (passwordlenght >= 1 && isCashAddress(address)) {
-                initializeGroupChat(address, password);
-                console.log('logging in with password and address');
-            } else if(isCashAddress(address)) {
-                initializeGroupChat(address);
-                console.log('logging in with address');
-            } else {
-                alert('Make sure you entered a valid address');
-            }
-        }
-
-        array = JSON.parse(localStorage.getItem('JOINED_CHATS'));
-        previousChats(array);
+            array = JSON.parse(localStorage.getItem('JOINED_CHATS'));
+            previousChats(array);
         </script>
     </body>
 </html>
