@@ -16,7 +16,7 @@
         <input type="text" id="addr" placeholder="enter friends bitcoin address" value="qzyy39eppf60npckfnwjww77f2r2zyn8lu9a02z0hy">
 		<br>
 		<input type="radio" name="enc-type" id="enc-type" value="00" selected>unencrypted<br>
-		<input type="radio" name="enc-type" id="enc-type" value="01" checked>AES-GCM<br>
+		<input type="radio" name="enc-type" id="enc-type" value="01" checked>AES-CTR<br>
 		<br>
 		<textarea id="msg" placeholder="enter message here"></textarea>
 		<br>
@@ -41,7 +41,7 @@
 
         <script src="wallet/dist/blockparty-wallet.js"></script>
         <script src="assets/dependencies/elliptic.js"></script>
-        <script src="assets/dependencies/AES-GCM.js"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/ricmoo/aes-js/e27b99df/index.js"></script>
         <script>
 			const ec  = new window.elliptic.ec('secp256k1');
 
@@ -94,19 +94,66 @@
 				});
 			}
 
-			const find_all_messages = () => {
-				return new Promise((resolve, reject) => {
-					blockparty.query_bitdb({
+            const extract_decimal_from_str = (s) => s
+                .split('')
+                .map(v => v.charCodeAt(0))
+                .reduce((a, v, i) => a + (v * Math.pow(256, s.length-1-i)), 0);
+
+			const find_all_incoming_messages = () => {
+				return new Promise(async (resolve, reject) => {
+					await blockparty.query_bitdb({
 						"v": 3,
 						"q": {
 							"find": {
 								"out.e.a": blockparty.get_address_suffix(),
-								"in.e.h1": protocol_prefix
+								"out.s1": protocol_prefix
 							},
 							"limit": 10
 						}
-					}, (data) => {
+					}, async (data) => {
 						console.log(data);
+                        for (let m of data.c) {
+                            let alt_addr = "";
+                            for (let o of m.out) {
+                                if (typeof o.e.a !== 'undefined' && o.e.a !== blockparty.get_address_suffix()) {
+                                    alt_addr = o.e.a;
+                                    break;
+                                }
+                            }
+
+                            console.log('alt_addr', alt_addr);
+                            const ss = await find_shared_secret(alt_addr);
+
+                            for (let o of m.out) {
+                                if (o.s1 === 'BMSG') {
+                                    const encryption_type = o.h2;
+                                    const timestamp = o.b3;
+                                    switch (encryption_type) {
+                                        case '01': // AES-CTR
+                                            // todo: rn we're just assuming this below
+                                            break;
+                                    }
+                                    const enc_buf = aesjs.utils.hex.toBytes(o.h4);
+                                    console.log(enc_buf);
+
+                                    const aes_ctr_dec = new aesjs.ModeOfOperation.ctr(ss.toArray(), new aesjs.Counter(5));
+                                    const dec_buf = aes_ctr_dec.decrypt(enc_buf);
+                                    const dec_text = aesjs.utils.utf8.fromBytes(dec_buf);
+                                    console.log('DEC_TEXT', dec_text);
+
+
+                                    const headers_len = extract_decimal_from_str(dec_text.substr(0, 2));
+                                    const body_len = extract_decimal_from_str(dec_text.substr(2, 4));
+                                    const headers = dec_text.substr(6, headers_len).split(';');
+                                    const body = dec_text.substr(6+headers_len, headers_len+body_len);
+
+                                    console.log(headers_len, body_len, headers, body);
+
+
+                                    break;
+                                }
+                            }
+                        }
 						// todo
 						// blah blah blah
 						// resolve(messages);
@@ -127,9 +174,6 @@
 				});
 			};
 
-            const encrypt_message = (msg, shared_secret) => aesGcmEncrypt(msg, shared_secret);
-            const decrypt_message = (msg, shared_secret) => aesGcmDecrypt(msg, shared_secret);
-
 
             // blockparty.after('login', get_messages); // load all messages here
             blockparty.init();
@@ -139,13 +183,41 @@
 				const timestamp_hex = (+(new Date)).toString(16);
 				const encryption_type = document.querySelector('input[name="enc-type"]:checked').value;
 
-				let message = document.getElementById('msg').value;
+                let headers = []; // format: x=y -- no ";" allowed as it's used to separate values
+
+                const headers_str = headers.join(';');
+                const body = document.getElementById('msg').value;
+
+                const headers_len = (headers_str.length).toString(16).padStart(4, '0');
+                const body_len = (body.length).toString(16).padStart(8, '0');
+
+                const encode_hex_to_str = (v) => v
+                    .match(/.{2}/g)
+                    .map(v => String.fromCharCode(parseInt(v, 16)))
+                    .join('');
+
+				let message = "";
+                message += encode_hex_to_str(headers_len); // 2 byte header length
+                message += encode_hex_to_str(body_len); // 4 byte body length
+                message += headers_str;
+                message += body;
+
+
 				switch (encryption_type) {
 					case '00': // unencrypted
 						break;
-					case '01': // AES-GCM
-                        const ssecret = await find_shared_secret(addr);
-                        console.log('shared secret', ssecret.toString());
+					case '01': // AES-CTR
+                        console.log(message)
+                        const ss = await find_shared_secret(addr);
+                        const aes_ctr_enc = new aesjs.ModeOfOperation.ctr(ss.toArray(), new aesjs.Counter(5));
+                        const enc_buf = aes_ctr_enc.encrypt(aesjs.utils.utf8.toBytes(message));
+                        const enc_hex = aesjs.utils.hex.fromBytes(enc_buf)
+
+                        console.log(ss.toString());
+                        console.log('e_msg', enc_hex);
+
+                        message = enc_hex;
+
 						break;
 					default:
 						console.error('unimplemented encryption type');
@@ -155,9 +227,8 @@
 				const op_return_data = [
                     {'type': 'str', 'v': protocol_prefix},
                     {'type': 'hex', 'v': encryption_type},
-                    // {'type': 'hex', 'v': recv_pubkey.toString()},
                     {'type': 'hex', 'v': timestamp_hex},
-                    {'type': 'str', 'v': message},
+                    {'type': 'hex', 'v': message},
                 ];
 				console.log(op_return_data);
 
@@ -172,7 +243,6 @@
 
 				console.log(tx);
 
-				/*
                 blockparty.broadcast_tx(tx, () => {
                     setTimeout(() => {
                         blockparty.update_balance(blockparty.update_balance_html);
@@ -180,7 +250,6 @@
                         blockparty.update_actions();
                     }, 2000);
                 }, false);
-				*/
             });
         </script>
     </body>
