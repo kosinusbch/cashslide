@@ -341,6 +341,8 @@ function shitty_parse_messages(result) {
     var result = result.replace(uline, '<u>$1</u>');
     var italic2 = /\_(\S(.*?\S)?)\_/gm;
     var result = result.replace(italic2, '<i>$1</i>');
+    var youtube = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?/;
+    var result = result.replace(youtube, '<iframe width="100%" height="315" src="https://www.youtube-nocookie.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>');
 
     return result;
 }

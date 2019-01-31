@@ -272,6 +272,22 @@ tbody td {
     margin-left: 8px;
 }
 
+.chat_reply:hover {
+    text-decoration: underline;    
+}
+
+.chat_reply {
+    float: right;
+    color: #0000;
+    font-weight: lighter;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.msg_box:hover .chat_reply {
+    color: #7b7b7b;
+}
+
 code {
     background: var(--code-bg);
     padding: 2px 4px 2px 4px;
@@ -287,6 +303,10 @@ strong {
 
 i {
     font-style: italic;
+}
+
+iframe {
+    border: 0;
 }
 
 .chatwindow ::-webkit-scrollbar {

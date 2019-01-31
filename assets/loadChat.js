@@ -9,7 +9,7 @@ if(localStorage.getItem('CS_BCH_CASH_ADDRESS')) {
 
 function chatTime(unix) {
     var d = new Date(unix * 1000),hh = d.getHours(),h = hh,min = ('0' + d.getMinutes()).slice(-2),ampm = 'AM',time;
-    
+
     if (hh > 12) {
         h = hh - 12;
         ampm = 'PM';
@@ -184,7 +184,7 @@ function getMessages(address, isEncrypted) {
             }
 
             if(output.txtype == 14) {
-                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '<div class="time_posted">'+chatTime(output.timestamp)+'</div></div></div></div>');
+                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'<div class="chat_reply">Reply</div></div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '<div class="time_posted">'+chatTime(output.timestamp)+'</div></div></div></div>');
             } else if(output.txtype2 == 14) {
                 $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp2) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message2)) + '<div class="time_posted">'+chatTime(output.timestamp2)+'</div></div></div></div>');
             } else {
