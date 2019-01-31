@@ -1,6 +1,26 @@
+:root {
+    --bg-color: #202124;
+    --header-bg: #2c2e33;
+    --footer-bg: #2c2e33;
+
+    --msg-bg: #2c2e33;
+    --msg-bg-mine: #2b2f339e;
+    --msg-color: #f5f5f5;
+    --msg-send-button: #fff;
+    --msg-send-button-hover: #5c94dc;
+
+    --text-color-black: #000;
+    --text-color-white: #fff;
+    --text-color-white-grey: #f5f5f5;
+
+    --input-submit: #1c6ec5; /* buttons */
+    --code-bg: #252525;
+    --code-color: #e061cf;
+}
+
 body, html {
     font-family: 'Open Sans', sans-serif;
-    background: #202124;
+    background: var(--bg-color);
     margin: 0;
     padding: 0;
     font-size: 1em;
@@ -11,8 +31,8 @@ input {
 }
 
 input[type=submit] {
-    background: #1c6ec5;
-    color: #fff;
+    background: var(--input-submit);
+    color: var(--text-color-white);
     padding: 7px 15px 7px 15px;
     border-radius: 5px;
     cursor: pointer;
@@ -23,23 +43,23 @@ input[type=submit] {
 
 textarea {
     font-family: 'Open Sans', sans-serif;
-    border: 1px solid #2c2e33;
+    border: 1px solid #0000;
     border-radius: 5px;
-    padding: 10px;
+    padding: 11px 40px 10px 10px;
     outline: none;
     margin: 0px 5px 6px 0px;
     width: 100%;
     height: 70%;
     margin-top: 1%;
     box-sizing: border-box;
-    background: #2c2e33;
-    color: #fff;
+    background: #0000;
+    color: var(--text-color-white);
     outline: none;
 }
 
 a {
     text-decoration: none;
-    color: #f9f9f9;
+    color: var(--text-color-white-grey);
 }
 
 input[type=text] {
@@ -53,13 +73,13 @@ input[type=text] {
 }
 
 header {
-    background: #2c2e33;
+    background: var(--header-bg);
     padding: 1px 0px 1px 0px;
     font-size: 1.2em;
-    color: #000;
+    color: var(--text-color-black);
     height: 50px;
-    -webkit-box-shadow: 0px 1px 1px 0px #ccc;
-    -moz-box-shadow: 0px 1px 1px 0px #ccc;
+    -webkit-box-shadow: 0px 1px 1px 0px #212121;
+    -moz-box-shadow: 0px 1px 1px 0px #212121;
     box-shadow: 0px 1px 1px 0px #212121;
 }
 
@@ -156,12 +176,20 @@ tbody td {
 }
 
 .msg_box {
-    background: #2c2e33;
-    max-width: 500px;
+    background: var(--msg-bg);
+    max-width: 440px;
     border-radius: 5px;
     padding: 7px 8px 7px 8px;
     margin-bottom: 6px;
     word-wrap: break-word;
+    box-shadow: -1px 1px #0000001a;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+.my_message {
+    background: var(--msg-bg-mine);
 }
 
 .msg_box .chat_username {
@@ -173,8 +201,10 @@ tbody td {
 .msg_box .chat_message {
     font-size: 0.88em;
     margin-top: 4px;
-    color: #f5f5f5;
+    color: var(--msg-color);
     white-space: pre-wrap;
+    line-height: 1.4;
+    overflow: auto;
 }
 
 .chat_wrapper {
@@ -194,29 +224,11 @@ tbody td {
     height: 7%;
     bottom: 0;
     overflow: hidden;
-    background: #2c2e33;
-}
-
-.message_wrapper input[type=text] {
-    border: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 0px;
-    padding: 10px;
-    outline: none;
-    margin: 0;
-    box-sizing: border-box;
-    background: #2c2e33;
-    color: #f9f9f9;
-    border-top: 1px solid #202124;
-}
-
-.message_wrapper input[type=text]::placeholder {
-    color: #b7b7b7;
+    background: var(--footer-bg);
 }
 
 .chatwindow {
-    background: #000;
+    background: #0000;
 }
 
 .msg_box a {
@@ -224,7 +236,15 @@ tbody td {
 }
 
 .history_channel {
-    background: #1b6ec5;width: 100%;display: block;padding: 8px 10px 8px 10px;border-radius: 3px;box-sizing: border-box;text-align: center;margin-bottom: 10px;cursor: pointer;
+    background: #1b6ec5;
+    width: 100%;
+    display: block;
+    padding: 8px 10px 8px 10px;
+    border-radius: 3px;
+    box-sizing: border-box;
+    text-align: center;
+    margin-bottom: 10px;
+    cursor: pointer;
 }
 
 .button_send {
@@ -233,21 +253,30 @@ tbody td {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    color: #fff;
+    color: var(--msg-send-button);
     font-size: 1.5em !important;
     cursor: pointer;
 }
 
 .button_send:hover {
-    color: #5c94dc;
+    color: var(--msg-send-button-hover);
     font-weight:bold;
 }
 
+.time_posted {
+    display: inline-flex;
+    float: right;
+    color: #f9f9f96e;
+    font-size: 0.9em;
+    margin-top: 4px;
+    margin-left: 8px;
+}
+
 code {
-    background: #252525;
+    background: var(--code-bg);
     padding: 2px 4px 2px 4px;
     border-radius: 2px;
-    color: #e061cf;
+    color: var(--code-color);
     font-family: monospace;
     font-size: 1.05em;
 }

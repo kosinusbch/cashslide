@@ -34,9 +34,9 @@ function decodeInviteCode() {
 async function previousChats(array) {
     array.forEach(function(output) {
         if(output.password !== undefined && output.password !== null) {
-            $("#server_list").append('<a class="history_channel" onclick="meme_clap_connect((\''+output.address+'\', \''+output.password+'\')">'+output.address+'</a>');
+            $("#server_list").append('<a class="history_channel" onclick="meme_clap_connect(\''+output.address+'\', \''+output.password+'\')">'+output.address+'</a>');
         } else {
-            $("#server_list").append('<a class="history_channel" onclick="meme_clap_connect((\''+output.address+'\')">'+output.address+'</a>');
+            $("#server_list").append('<a class="history_channel" onclick="meme_clap_connect(\''+output.address+'\')">'+output.address+'</a>');
         }
     })
 }
@@ -182,7 +182,6 @@ function inviteModal() {
 
     inviteModal.open();
 
-    console.log('account created or u gay');
     inviteModal.setContent('<p>Enter your invite code below, and we\'ll try to get you into the server</p><input type="text" id="invite_code" value=""><input type="submit" onclick="decodeInviteCode();inviteModal.close();" value="Join Server">');
 }
 

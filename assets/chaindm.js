@@ -23,7 +23,6 @@ function createWallet() {
     console.log(simpleWallet.privateKey);
     
     $("#account_memes_4_lyfe").replaceWith('<div style="text-align:center;overflow-wrap: break-word;"><img src="https://chart.googleapis.com/chart?cht=qr&chl=' + simpleWallet.cashAddress + '&chs=210x210&chld=L|0"><br/><br/>' + simpleWallet.cashAddress + '<br/><br/><b>Save your privatekey now!</b><br/><span style="color: #ff1414;">' + simpleWallet.privateKey + '<br/>' + simpleWallet.mnemonic + '</span></div>');
-
 }
 
 function createWalletFromMnemonic(mnemonic) {
@@ -321,7 +320,7 @@ function sendChat() {
 
 }
 
-function e(html){
+function e(html) {
     var text = document.createTextNode(html);
     var p = document.createElement('p');
     p.appendChild(text);
@@ -329,10 +328,7 @@ function e(html){
 }
 
 
-function shitty_parse_messages(result)
-{
-//    var newline = /(?:\r\n|\r|\n)/g;
-//    var result = result.replace(newline, '<br/>')
+function shitty_parse_messages(result) {
     var bold = /\*\*(\S(.*?\S)?)\*\*/gm;
     var result = result.replace(bold, '<strong>$1</strong>');
     var italic = /\*(\S(.*?\S)?)\*/gm;
@@ -367,7 +363,7 @@ function getUsernameColor(color) {
     return color;
 }
 
-function checkValue(value,arr){
+function checkValue(value,arr) {
   var status = false;
  
   for(var i=0; i<arr.length; i++){
@@ -467,9 +463,3 @@ function openConnection(address, isEncrypted) {
         }
     }
 }
-
-function sleeper(ms) {
-    return function(x) {
-      return new Promise(resolve => setTimeout(() => resolve(x), ms));
-    };
-  }

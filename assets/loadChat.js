@@ -1,3 +1,29 @@
+arrayFromHex = hexString => new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+arrayToHex = intArray => intArray.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+
+if(localStorage.getItem('CS_BCH_CASH_ADDRESS')) {
+    myAddress = localStorage.getItem('CS_BCH_CASH_ADDRESS');
+} else {
+    myAddress = 'bitcoincash:abcdefgwxyz'
+}
+
+function chatTime(unix) {
+    var d = new Date(unix * 1000),hh = d.getHours(),h = hh,min = ('0' + d.getMinutes()).slice(-2),ampm = 'AM',time;
+    
+    if (hh > 12) {
+        h = hh - 12;
+        ampm = 'PM';
+    } else if (hh === 12) {
+        h = 12;
+        ampm = 'PM';
+    } else if (hh == 0) {
+        h = 12;
+    }
+      
+    time = h + ':' + min + ' ' + ampm;
+    return time;
+}
+
 function myCircle(address) {
     var query = {
         "v": 3,
@@ -125,16 +151,16 @@ function getMessages(address, isEncrypted) {
                 name = item.username;
             }
 
-            if(localStorage.getItem('CS_BCH_CASH_ADDRESS') == output.sender) {
+            if(myAddress.replace('bitcoincash:','') == output.sender) {
                 fuck_my_ass = 'msg_box my_message';
             } else {
                 fuck_my_ass = 'msg_box';
             }
 
             if(output.txtype == 14) {
-                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '</div></div></div>');
+                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '<div class="time_posted">'+chatTime(output.timestamp)+'</div></div></div></div>');
             } else if(output.txtype2 == 14) {
-                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp2) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message2)) + '</div></div></div>');
+                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp2) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message2)) + '<div class="time_posted">'+chatTime(output.timestamp)+'</div></div></div></div>');
             } else {
                 console.log('Skipping non-message');
             }
@@ -151,16 +177,16 @@ function getMessages(address, isEncrypted) {
                 name = item.username;
             }
 
-            if(localStorage.getItem('CS_BCH_CASH_ADDRESS') == output.sender) {
+            if(myAddress.replace('bitcoincash:','') == output.sender) {
                 fuck_my_ass = 'msg_box my_message';
             } else {
                 fuck_my_ass = 'msg_box';
             }
 
             if(output.txtype == 14) {
-                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '</div></div></div>');
+                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '<div class="time_posted">'+chatTime(output.timestamp)+'</div></div></div></div>');
             } else if(output.txtype2 == 14) {
-                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp2) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message2)) + '</div></div></div>');
+                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp2) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message2)) + '<div class="time_posted">'+chatTime(output.timestamp2)+'</div></div></div></div>');
             } else {
                 console.log('Skipping non-message');
             }
@@ -214,10 +240,16 @@ function openChatSocket(address, isEncrypted) {
                 name = item.username;
             }
 
+            if(myAddress.replace('bitcoincash:','') == output.sender) {
+                fuck_my_ass = 'msg_box my_message';
+            } else {
+                fuck_my_ass = 'msg_box';
+            }
+
             if(output.txtype == 14) {
-                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '</div></div></div>');
+                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message)) + '<div class="time_posted">'+chatTime(output.timestamp)+'</div></div></div>');
             } else if(output.txtype2 == 14) {
-                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp2) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message2)) + '</div></div></div>');
+                $("#group_chat").append('<div class="msg_hamburger"><div class="'+fuck_my_ass+'" data-time="' + e(output.timestamp2) + '"><div class="chat_username" style="color: ' + color + '">'+name+'</div><div class="chat_message">' + shitty_parse_messages(e(output.message2)) + '<div class="time_posted">'+chatTime(output.timestamp)+'</div></div></div>');
             } else {
                 console.log('message error finding sfafsafas');
             }
@@ -288,6 +320,17 @@ function initializeGropeCat(address, password = null) {
 
 function initializeGroupChat(address, password = null) {
     
+    var hist = JSON.parse(localStorage.getItem('JOINED_CHATS'));
+    if (checkValue(address,hist)) {
+        //todo overwrite existing
+    } else {
+        var meme_review = {"address":address, "password":password}
+
+        var restoreJOINED_CHATS = JSON.parse(localStorage.getItem('JOINED_CHATS'));
+        restoreJOINED_CHATS.push(meme_review);
+        localStorage.setItem('JOINED_CHATS', JSON.stringify(restoreJOINED_CHATS));
+    }
+
     sessionStorage.setItem('CS_CONNECTED_SERVER', address);
 
     if(password == null || password == undefined) {
